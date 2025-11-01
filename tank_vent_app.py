@@ -41,12 +41,10 @@ with col2:
         st.slider("Outlet Z (ft)", -H/2, H/2, H/3, 0.3)
     ])
 
-# FIXED: Compute velocity on CELL CENTERS (res-1)
+# Cell-centered velocity
 def field(i, o, res=25):
-    n = res - 1  # Number of cells
-    if n < 1:
-        n = 1
-    # Cell centers
+    n = res - 1
+    if n < 1: n = 1
     x = np.linspace(-L/2 + L/(2*n), L/2 - L/(2*n), n)
     y = np.linspace(-diameter_ft/2 + diameter_ft/(2*n), diameter_ft/2 - diameter_ft/(2*n), n)
     z = np.linspace(-H/2 + H/(2*n), H/2 - H/(2*n), n)
@@ -59,7 +57,7 @@ def field(i, o, res=25):
         V += s * v / (r**3)
     
     grid = pv.ImageData()
-    grid.dimensions = (n+1, n+1, n+1)  # Nodes = cells + 1
+    grid.dimensions = (n+1, n+1, n+1)
     grid.spacing = (L/n, diameter_ft/n, H/n)
     grid.origin = (-L/2, -diameter_ft/2, -H/2)
     grid.cell_data["velocity"] = V.astype(np.float32)
@@ -67,7 +65,7 @@ def field(i, o, res=25):
     return grid
 
 g = field(inlet, outlet)
-s = g.streamlines_from_source(pv.PointSet(inlet + np.random.randn(80,3)*0.2), max_time=50)
+streamlines = g.streamlines_from_source(pv.PointSet(inlet + np.random.randn(80,3)*0.2), max_time=50)
 
 st.subheader("3D Air Flow Simulation")
 plotter = pv.Plotter()
@@ -75,7 +73,13 @@ cyl = pv.Cylinder(radius=diameter_ft/2, height=height_ft if orientation=="Vertic
 if orientation == "Horizontal":
     cyl.rotate_z(90)
 plotter.add_mesh(cyl, color="lightblue", opacity=0.2)
-plotter.add_mesh(s, line_width=2, cmap="turbo")
+
+# FIXED: Loop over MultiBlock and add each streamline as lines
+for i in range(streamlines.n_blocks):
+    block = streamlines[i]
+    if block.n_points > 1:
+        plotter.add_lines(block.points, color="orange", width=2)
+
 plotter.add_points(inlet, color="red", point_size=20)
 plotter.add_points(outlet, color="blue", point_size=20)
 stpyvista(plotter, height=500, key="flow")
