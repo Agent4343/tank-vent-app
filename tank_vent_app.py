@@ -74,7 +74,7 @@ if orientation == "Horizontal":
     cyl.rotate_z(90)
 plotter.add_mesh(cyl, color="lightblue", opacity=0.2)
 
-# FIXED: Use n_lines and get_line(i)
+# Add streamlines as lines
 for i in range(streamlines.n_lines):
     line = streamlines.get_line(i)
     if line.n_points > 1:
@@ -82,7 +82,9 @@ for i in range(streamlines.n_lines):
 
 plotter.add_points(inlet, color="red", point_size=20)
 plotter.add_points(outlet, color="blue", point_size=20)
-stpyvista(plotter, height=500, key="flow")
+
+# FIXED: Use panel_kwargs
+stpyvista(plotter, key="flow", panel_kwargs={"height": 500})
 
 # Coverage
 cov = np.mean(np.linalg.norm(g["velocity"], axis=1) > 0.1)
