@@ -41,11 +41,15 @@ with col2:
         st.slider("Outlet Z (ft)", -H/2, H/2, H/3, 0.3)
     ])
 
-# FIXED: Use (res-1) for cell data
+# FIXED: Compute velocity on CELL CENTERS (res-1)
 def field(i, o, res=25):
-    x = np.linspace(-L/2, L/2, res)
-    y = np.linspace(-diameter_ft/2, diameter_ft/2, res)
-    z = np.linspace(-H/2, H/2, res)
+    n = res - 1  # Number of cells
+    if n < 1:
+        n = 1
+    # Cell centers
+    x = np.linspace(-L/2 + L/(2*n), L/2 - L/(2*n), n)
+    y = np.linspace(-diameter_ft/2 + diameter_ft/(2*n), diameter_ft/2 - diameter_ft/(2*n), n)
+    z = np.linspace(-H/2 + H/(2*n), H/2 - H/(2*n), n)
     X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
     P = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
     V = np.zeros_like(P)
@@ -54,15 +58,11 @@ def field(i, o, res=25):
         r = np.linalg.norm(v, axis=1, keepdims=True) + 1e-6
         V += s * v / (r**3)
     
-    # Create grid with (res-1) cells
     grid = pv.ImageData()
-    grid.dimensions = (res-1, res-1, res-1)  # ← FIXED
-    grid.spacing = (L/(res-2), diameter_ft/(res-2), H/(res-2)) if res > 2 else (1,1,1)
-    grid.origin = (-L/2 + grid.spacing[0]/2, -diameter_ft/2 + grid.spacing[1]/2, -H/2 + grid.spacing[2]/2)
-    
-    # Reshape velocity to cell data: (res-1)^3
-    V_cell = V.reshape((res, res, res))[:-1, :-1, :-1].ravel()
-    grid.cell_data["velocity"] = V_cell.astype(np.float32)
+    grid.dimensions = (n+1, n+1, n+1)  # Nodes = cells + 1
+    grid.spacing = (L/n, diameter_ft/n, H/n)
+    grid.origin = (-L/2, -diameter_ft/2, -H/2)
+    grid.cell_data["velocity"] = V.astype(np.float32)
     grid.set_active_vectors("velocity")
     return grid
 
