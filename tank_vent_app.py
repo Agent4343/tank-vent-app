@@ -3,7 +3,9 @@ import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
 
-pv.OFF_SCREEN = True  # FIXED: Headless rendering
+# FIXED: Full headless rendering
+pv.OFF_SCREEN = True
+pv.global_theme.jupyter_backend = "static"
 
 st.set_page_config(page_title="C-NLOPB Tank Vent (ft)", layout="wide")
 
@@ -70,13 +72,12 @@ g = field(inlet, outlet)
 streamlines = g.streamlines_from_source(pv.PointSet(inlet + np.random.randn(80,3)*0.2), max_time=50)
 
 st.subheader("3D Air Flow Simulation")
-plotter = pv.Plotter()
+plotter = pv.Plotter(off_screen=True)  # FIXED
 cyl = pv.Cylinder(radius=diameter_ft/2, height=height_ft if orientation=="Vertical" else length_ft, resolution=40)
 if orientation == "Horizontal":
     cyl.rotate_z(90)
 plotter.add_mesh(cyl, color="lightblue", opacity=0.2)
 
-# Add streamlines
 for i in range(streamlines.n_lines):
     line = streamlines.get_line(i)
     if line.n_points > 1:
@@ -84,6 +85,7 @@ for i in range(streamlines.n_lines):
 
 plotter.add_points(inlet, color="red", point_size=20)
 plotter.add_points(outlet, color="blue", point_size=20)
+
 stpyvista(plotter, key="flow", panel_kwargs={"height": 500})
 
 # Coverage
