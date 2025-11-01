@@ -21,9 +21,7 @@ with col1:
         diameter_ft = st.number_input("Diameter (ft)", 0.3, 65.0, 13.0)
         height_ft = diameter_ft
 
-    # Volume in cubic feet
     volume_ft3 = 3.14159 * (diameter_ft/2)**2 * (height_ft if orientation == "Vertical" else length_ft)
-    # Flow rate: 12 ACH → CFH
     flow_cfh = volume_ft3 * 12
 
     st.metric("Tank Volume", f"{volume_ft3:,.1f} ft³")
@@ -43,7 +41,7 @@ with col2:
         st.slider("Outlet Z (ft)", -H/2, H/2, H/3, 0.3)
     ])
 
-# Fixed PyVista: Use ImageData
+# FIXED: Use (res-1) for cell data
 def field(i, o, res=25):
     x = np.linspace(-L/2, L/2, res)
     y = np.linspace(-diameter_ft/2, diameter_ft/2, res)
@@ -55,11 +53,16 @@ def field(i, o, res=25):
         v = P - p
         r = np.linalg.norm(v, axis=1, keepdims=True) + 1e-6
         V += s * v / (r**3)
+    
+    # Create grid with (res-1) cells
     grid = pv.ImageData()
-    grid.dimensions = (res, res, res)
-    grid.spacing = (L/(res-1), diameter_ft/(res-1), H/(res-1))
-    grid.origin = (-L/2, -diameter_ft/2, -H/2)
-    grid.cell_data["velocity"] = V.astype(np.float32)
+    grid.dimensions = (res-1, res-1, res-1)  # ← FIXED
+    grid.spacing = (L/(res-2), diameter_ft/(res-2), H/(res-2)) if res > 2 else (1,1,1)
+    grid.origin = (-L/2 + grid.spacing[0]/2, -diameter_ft/2 + grid.spacing[1]/2, -H/2 + grid.spacing[2]/2)
+    
+    # Reshape velocity to cell data: (res-1)^3
+    V_cell = V.reshape((res, res, res))[:-1, :-1, :-1].ravel()
+    grid.cell_data["velocity"] = V_cell.astype(np.float32)
     grid.set_active_vectors("velocity")
     return grid
 
@@ -77,7 +80,7 @@ plotter.add_points(inlet, color="red", point_size=20)
 plotter.add_points(outlet, color="blue", point_size=20)
 stpyvista(plotter, height=500, key="flow")
 
-# Coverage (same logic)
+# Coverage
 cov = np.mean(np.linalg.norm(g["velocity"], axis=1) > 0.1)
 st.metric("Airflow Coverage", f"{cov*100:.1f}%")
 
