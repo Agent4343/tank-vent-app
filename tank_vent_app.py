@@ -3,6 +3,8 @@ import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
 
+pv.OFF_SCREEN = True  # FIXED: Headless rendering
+
 st.set_page_config(page_title="C-NLOPB Tank Vent (ft)", layout="wide")
 
 st.title("C-NLOPB Tank Ventilation – Imperial (ft)")
@@ -74,7 +76,7 @@ if orientation == "Horizontal":
     cyl.rotate_z(90)
 plotter.add_mesh(cyl, color="lightblue", opacity=0.2)
 
-# Add streamlines as lines
+# Add streamlines
 for i in range(streamlines.n_lines):
     line = streamlines.get_line(i)
     if line.n_points > 1:
@@ -82,8 +84,6 @@ for i in range(streamlines.n_lines):
 
 plotter.add_points(inlet, color="red", point_size=20)
 plotter.add_points(outlet, color="blue", point_size=20)
-
-# FIXED: Use panel_kwargs
 stpyvista(plotter, key="flow", panel_kwargs={"height": 500})
 
 # Coverage
