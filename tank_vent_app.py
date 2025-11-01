@@ -74,11 +74,11 @@ if orientation == "Horizontal":
     cyl.rotate_z(90)
 plotter.add_mesh(cyl, color="lightblue", opacity=0.2)
 
-# FIXED: Loop over MultiBlock and add each streamline as lines
-for i in range(streamlines.n_blocks):
-    block = streamlines[i]
-    if block.n_points > 1:
-        plotter.add_lines(block.points, color="orange", width=2)
+# FIXED: Use n_lines and get_line(i)
+for i in range(streamlines.n_lines):
+    line = streamlines.get_line(i)
+    if line.n_points > 1:
+        plotter.add_lines(line.points, color="orange", width=2)
 
 plotter.add_points(inlet, color="red", point_size=20)
 plotter.add_points(outlet, color="blue", point_size=20)
