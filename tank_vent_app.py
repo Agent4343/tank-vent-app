@@ -6,7 +6,7 @@ from stpyvista import stpyvista
 st.set_page_config(page_title="C-NLOPB Tank Vent (ft)", layout="wide")
 
 st.title("C-NLOPB Tank Ventilation – Imperial (ft)")
-st.markdown("**12 Air Changes per Hour (ACH) – SOR/96-118**")
+st.markdown("**12 ACH – SOR/96-118**")
 
 col1, col2 = st.columns(2)
 
@@ -41,7 +41,6 @@ with col2:
         st.slider("Outlet Z (ft)", -H/2, H/2, H/3, 0.3)
     ])
 
-# Cell-centered velocity
 def field(i, o, res=25):
     n = res - 1
     if n < 1: n = 1
@@ -68,7 +67,7 @@ g = field(inlet, outlet)
 streamlines = g.streamlines_from_source(pv.PointSet(inlet + np.random.randn(80,3)*0.2), max_time=50)
 
 st.subheader("3D Air Flow Simulation")
-plotter = pv.Plotter()  # xvfb-run handles headless
+plotter = pv.Plotter()
 cyl = pv.Cylinder(radius=diameter_ft/2, height=height_ft if orientation=="Vertical" else length_ft, resolution=40)
 if orientation == "Horizontal":
     cyl.rotate_z(90)
@@ -84,7 +83,6 @@ plotter.add_points(outlet, color="blue", point_size=20)
 
 stpyvista(plotter, key="flow", panel_kwargs={"height": 500})
 
-# Coverage
 cov = np.mean(np.linalg.norm(g["velocity"], axis=1) > 0.1)
 st.metric("Airflow Coverage", f"{cov*100:.1f}%")
 
