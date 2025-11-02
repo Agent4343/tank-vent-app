@@ -1,4 +1,3 @@
-import streamlit as st
 import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
@@ -103,4 +102,4 @@ Airflow Coverage: {cov*100:.1f}%
 
 Compliant: {'Yes' if cov >= 0.85 else 'No – Improve placement'}
 """
-st.download_button("Download Report (TXT)", report, "cnlopb_report_imperial.txt")
+st.download_button("Download Report (TXT)", report, "cnlopb_report_imperial.txt
