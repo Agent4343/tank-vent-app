@@ -3,9 +3,7 @@ import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
 
-# FIXED: Full headless rendering
-pv.OFF_SCREEN = True
-pv.global_theme.jupyter_backend = "static"
+pv.OFF_SCREEN = True  # FIXED: Only this for headless
 
 st.set_page_config(page_title="C-NLOPB Tank Vent (ft)", layout="wide")
 
