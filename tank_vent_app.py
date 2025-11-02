@@ -3,8 +3,6 @@ import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
 
-pv.OFF_SCREEN = True  # FIXED: Only this for headless
-
 st.set_page_config(page_title="C-NLOPB Tank Vent (ft)", layout="wide")
 
 st.title("C-NLOPB Tank Ventilation – Imperial (ft)")
@@ -70,7 +68,7 @@ g = field(inlet, outlet)
 streamlines = g.streamlines_from_source(pv.PointSet(inlet + np.random.randn(80,3)*0.2), max_time=50)
 
 st.subheader("3D Air Flow Simulation")
-plotter = pv.Plotter(off_screen=True)  # FIXED
+plotter = pv.Plotter()  # xvfb-run handles headless
 cyl = pv.Cylinder(radius=diameter_ft/2, height=height_ft if orientation=="Vertical" else length_ft, resolution=40)
 if orientation == "Horizontal":
     cyl.rotate_z(90)
