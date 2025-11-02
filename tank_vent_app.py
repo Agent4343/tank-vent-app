@@ -1,6 +1,10 @@
+import streamlit as st
 import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
+
+# Enable headless rendering for PyVista (fixes segmentation fault in headless environments)
+pv.OFF_SCREEN = True
 
 st.set_page_config(page_title="C-NLOPB Tank Vent (ft)", layout="wide")
 
@@ -67,7 +71,7 @@ g = field(inlet, outlet)
 streamlines = g.streamlines_from_source(pv.PointSet(inlet + np.random.randn(80,3)*0.2), max_time=50)
 
 st.subheader("3D Air Flow Simulation")
-plotter = pv.Plotter()  # xvfb-run handles headless
+plotter = pv.Plotter()  # Off-screen mode handles headless
 cyl = pv.Cylinder(radius=diameter_ft/2, height=height_ft if orientation=="Vertical" else length_ft, resolution=40)
 if orientation == "Horizontal":
     cyl.rotate_z(90)
@@ -102,4 +106,4 @@ Airflow Coverage: {cov*100:.1f}%
 
 Compliant: {'Yes' if cov >= 0.85 else 'No – Improve placement'}
 """
-st.download_button("Download Report (TXT)", report, "cnlopb_report_imperial.txt
+st.download_button("Download Report (TXT)", report, "cnlopb_report_imperial.txt")
