@@ -1,65 +1,70 @@
-altair==5.5.0
-attrs==25.4.0
-bleach==6.3.0
-blinker==1.9.0
-bokeh==3.8.0
-cachetools==6.2.1
-certifi==2025.10.5
-charset-normalizer==3.4.4
-click==8.3.0
-contourpy==1.3.3
-cycler==0.12.1
-fonttools==4.60.1
-gitdb==4.0.12
-gitpython==3.1.45
-idna==3.11
-jinja2==3.1.6
-jsonschema==4.25.1
-jsonschema-specifications==2025.9.1
-kiwisolver==1.4.9
-linkify-it-py==2.0.3
-markdown==3.9
-markdown-it-py==4.0.0
-markupsafe==3.0.3
-matplotlib==3.10.7
-mdit-py-plugins==0.5.0
-mdurl==0.1.2
-narwhals==2.10.1
-numpy==2.3.4
-packaging==25.0
-pandas==2.3.3
-panel==1.8.2
-param==2.2.1
-pillow==12.0.0
-platformdirs==4.5.0
-pooch==1.8.2
-protobuf==6.33.0
-pyarrow==21.0.0
-pydeck==0.9.1
-pyparsing==3.2.5
-python-dateutil==2.9.0.post0
-pytz==2025.2
-pyvista==0.46.4
-pyviz-comms==3.0.6
-pyyaml==6.0.3
-referencing==0.37.0
-requests==2.32.5
-rpds-py==0.28.0
-scipy==1.16.3
-scooby==0.11.0
-six==1.17.0
-smmap==5.0.2
-stpyvista==0.1.4
-streamlit==1.51.0
-tenacity==9.1.2
-toml==0.10.2
-tornado==6.5.2
-tqdm==4.67.1
-typing-extensions==4.15.0
-tzdata==2025.2
-uc-micro-py==1.0.3
-urllib3==2.5.0
-vtk==9.5.2
-watchdog==6.0.0
-webencodings==0.5.1
-xyzservices==2025.10.0
+# C-NLOPB Tank Ventilation App – Requirements (for Developers)
+# ===========================================================
+#
+# Functional Requirements
+# -----------------------
+# 1. User Inputs
+#    - Tank orientation: Vertical or Horizontal
+#    - Dimensions: diameter, height, and/or length (ft)
+#    - Air changes per hour (ACH)
+#    - Target duct face velocity (fpm)
+#    - Streamline parameters: random seed, resolution, number of seeds
+#    - Inlet/outlet 3D coordinates via sliders (X, Y, Z)
+#
+# 2. Derived Calculations
+#    - Tank volume (ft³)
+#    - Required airflow: CFH, CFM
+#    - Vent diameter (inches) from flow and velocity
+#    - Visualization dimensions (L, D, H)
+#
+# 3. Flow Field Simulation
+#    - Generate 3D velocity field using source–sink model
+#    - Compute vectors on points for accurate streamlines
+#    - Adjustable resolution for performance tuning
+#    - Randomized streamline seeds near inlet
+#
+# 4. Visualization
+#    - 3D PyVista tank cylinder (orientation based on selection)
+#    - Streamlines (orange), inlet (red), outlet (blue)
+#    - Embedded viewer with stpyvista
+#    - Optional PNG export of rendered scene
+#
+# 5. Performance Controls
+#    - Grid resolution (12–48)
+#    - Streamline seeds (40–300)
+#    - Random seed for deterministic results
+#
+# 6. Coverage Analysis
+#    - Outlet-reach coverage: % of streamlines within outlet tolerance
+#    - Speed coverage: % of domain with >30th percentile speed
+#
+# 7. Compliance Logic
+#    - “Compliant” if outlet coverage ≥ 85%
+#
+# 8. Reporting
+#    - Generates .txt report with tank data, flow metrics, coverage, compliance
+#    - Optional .png visualization download
+#
+# 9. Streamlit Layout
+#    - Two-column layout for inputs and visualization settings
+#    - Metrics for key outputs: Volume, Flow, Duct Ø, Coverage
+#    - Markdown headers for clear sectioning
+#
+#
+# Technical Requirements
+# ----------------------
+# - Libraries: streamlit, numpy, pyvista, stpyvista
+# - Headless rendering: pv.OFF_SCREEN = True
+# - Use float32 for PyVista data
+# - Orientation logic: direction=(1,0,0) when horizontal
+# - Units: Imperial (ft, ft³, CFM, CFH, in)
+# - Coverage threshold: 85% minimum
+#
+#
+# Optional Enhancements
+# ---------------------
+# - SI (metric) toggle mode
+# - Air density correction for humidity/temperature
+# - Multi-inlet/outlet capability
+# - Auto-optimized vent placement based on flow coverage
+# - PDF/Excel export options
