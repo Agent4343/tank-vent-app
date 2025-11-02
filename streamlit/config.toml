@@ -1,0 +1,12 @@
+[server]
+runOnSave = true
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+
+[global]
+developmentMode = false
